@@ -1,0 +1,25 @@
+--cpu Cortex-M3
+"magnitometr\startup_stm32f103xb.o"
+"magnitometr\main.o"
+"magnitometr\stm32f1xx_it.o"
+"magnitometr\stm32f1xx_hal_msp.o"
+"magnitometr\hmc5883l.o"
+"magnitometr\stm32f1xx_hal_gpio_ex.o"
+"magnitometr\stm32f1xx_hal_i2c.o"
+"magnitometr\stm32f1xx_hal.o"
+"magnitometr\stm32f1xx_hal_rcc.o"
+"magnitometr\stm32f1xx_hal_rcc_ex.o"
+"magnitometr\stm32f1xx_hal_gpio.o"
+"magnitometr\stm32f1xx_hal_dma.o"
+"magnitometr\stm32f1xx_hal_cortex.o"
+"magnitometr\stm32f1xx_hal_pwr.o"
+"magnitometr\stm32f1xx_hal_flash.o"
+"magnitometr\stm32f1xx_hal_flash_ex.o"
+"magnitometr\stm32f1xx_hal_exti.o"
+"magnitometr\stm32f1xx_hal_tim.o"
+"magnitometr\stm32f1xx_hal_tim_ex.o"
+"magnitometr\system_stm32f1xx.o"
+--strict --scatter "magnitometr\magnitometr.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "magnitometr.map" -o magnitometr\magnitometr.axf
