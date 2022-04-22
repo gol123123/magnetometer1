@@ -27,4 +27,5 @@ magnitometr\hmc5883l.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.
 magnitometr\hmc5883l.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 magnitometr\hmc5883l.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 magnitometr\hmc5883l.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
+magnitometr\hmc5883l.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 magnitometr\hmc5883l.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

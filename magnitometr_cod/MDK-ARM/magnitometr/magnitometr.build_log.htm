@@ -5,10 +5,10 @@
 <h2>Tool Versions:</h2>
 IDE-Version: µVision V5.35.0.0
 Copyright (C) 2021 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: asas asd, asd, LIC=----
+License Information: asas asd, asd, LIC=JDA0P-MFJQI-790G1-C3XEC-2ZWPR-TBWXJ
  
 Tool Versions:
-Toolchain:       MDK-Lite  Version: 5.35.0.2
+Toolchain:       MDK-ARM Professional  Version: 5.35.0.2
 Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
 C Compiler:      Armcc.exe V5.06 update 7 (build 960)
 Assembler:       Armasm.exe V5.06 update 7 (build 960)
@@ -22,19 +22,27 @@ Dialog DLL:      TCM.DLL V1.53.0.0
  
 <h2>Project:</h2>
 C:\Users\ornstein\Desktop\pr and reshe\Ï‡„ÌËÚÓÏÂÚ\magnitometr_cod\MDK-ARM\magnitometr.uvprojx
-Project File Date:  02/14/2022
+Project File Date:  04/06/2022
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'magnitometr'
 compiling main.c...
-..\MDK-ARM\HMC5883L.h(91): warning:  #1295-D: Deprecated declaration HMC5883L_Enabled - give arg types
+../MDK-ARM/GPS.h(62): warning:  #1-D: last line of file ends without a newline
+  #endif
+../MDK-ARM/HMC5883L.h(98): warning:  #1295-D: Deprecated declaration HMC5883L_Enabled - give arg types
     void  HMC5883L_Enabled();
-../Core/Src/main.c: 1 warning, 0 errors
+../MDK-ARM/magnetic.h(19): warning:  #223-D: function "strlen" declared implicitly
+  	uint8_t len = strlen (string);
+../MDK-ARM/magnetic.h(78): warning:  #223-D: function "sprintf" declared implicitly
+  		sprintf (buffer, "$%2hhd:%2hhd%f%c%f%c%f%f%f%f",&GPS.GPGGA.UTC_Hour,     &GPS.GPGGA.UTC_Min,
+../MDK-ARM/magnetic.h(93): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Core/Src/main.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=8594 RO-data=294 RW-data=52 ZI-data=1764  
+Program Size: Code=21600 RO-data=832 RW-data=36 ZI-data=2684  
 FromELF: creating hex file...
-"magnitometr\magnitometr.axf" - 0 Error(s), 1 Warning(s).
+"magnitometr\magnitometr.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 

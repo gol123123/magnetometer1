@@ -32,9 +32,7 @@ Vector HMC5883L_readNormalize(void)
     v.XAxis = ((((float)HMC5883L_readRegister16(HMC5883L_REG_OUT_X_M)) * mgPerDigit)/10) + xOffset;
     v.YAxis = ((((float)HMC5883L_readRegister16(HMC5883L_REG_OUT_Y_M)) * mgPerDigit)/10) + yOffset;
     v.ZAxis = (((float)HMC5883L_readRegister16(HMC5883L_REG_OUT_Z_M) * mgPerDigit)/10) - 28.525f;
-	  
 	  v.r  = sqrt(v.XAxis*v.XAxis + v.YAxis*v.YAxis + v.ZAxis*v.ZAxis) ;
-
     return v;
 }
 

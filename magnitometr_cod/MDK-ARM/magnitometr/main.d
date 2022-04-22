@@ -26,5 +26,8 @@ magnitometr\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 magnitometr\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 magnitometr\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 magnitometr\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
-magnitometr\main.o: ..\MDK-ARM\HMC5883L.h
+magnitometr\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+magnitometr\main.o: ../MDK-ARM/magnetic.h
+magnitometr\main.o: ../MDK-ARM/GPS.h
+magnitometr\main.o: ../MDK-ARM/HMC5883L.h
 magnitometr\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h

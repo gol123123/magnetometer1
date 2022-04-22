@@ -1,9 +1,10 @@
 --cpu Cortex-M3
 "magnitometr\startup_stm32f103xb.o"
+"magnitometr\hmc5883l.o"
+"magnitometr\gps.o"
 "magnitometr\main.o"
 "magnitometr\stm32f1xx_it.o"
 "magnitometr\stm32f1xx_hal_msp.o"
-"magnitometr\hmc5883l.o"
 "magnitometr\stm32f1xx_hal_gpio_ex.o"
 "magnitometr\stm32f1xx_hal_i2c.o"
 "magnitometr\stm32f1xx_hal.o"
@@ -18,6 +19,7 @@
 "magnitometr\stm32f1xx_hal_exti.o"
 "magnitometr\stm32f1xx_hal_tim.o"
 "magnitometr\stm32f1xx_hal_tim_ex.o"
+"magnitometr\stm32f1xx_hal_uart.o"
 "magnitometr\system_stm32f1xx.o"
 --strict --scatter "magnitometr\magnitometr.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols

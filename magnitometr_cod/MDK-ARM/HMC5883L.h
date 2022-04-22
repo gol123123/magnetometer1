@@ -81,10 +81,17 @@ typedef struct
 	  int16_t x, y, z;
 	  float xg, yg, zg, r;
 	  uint8_t data[7];
-	  uint8_t read_reg;
-} Vector;
+}Vector;
 
-  
+typedef struct
+{
+    uint8_t Range;
+		uint8_t	MeasurementMode;
+		uint8_t	DataRate;
+		uint8_t	Samples;
+	  uint8_t read_reg[3];
+} HMC5883L_STATUS;
+
 	Vector HMC5883L_readRaw(void);
 	Vector HMC5883L_readNormalize(void);
 

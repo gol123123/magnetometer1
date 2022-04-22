@@ -1,0 +1,368 @@
+#include "msp430.h"                     ; #define controlled include file
+
+RES_DATA              EQU     00200h
+AMPLIFER              EQU     00202h
+BALANCE               EQU     00203h
+ADC_TEMP              EQU     00204h
+COMPARE               EQU     00206h
+TEMP_BALANCE          EQU     00208h
+DATA_R_1              EQU     00209h
+DATA_R_2              EQU     0020Ah
+DATA_R_3              EQU     0020Bh
+DATA_R_4              EQU     0020Ch
+DATA_T_1              EQU     0020Dh
+DATA_T_2              EQU     0020Eh
+DATA_T_3              EQU     0020Fh
+DATA_T_4              EQU     00210h
+
+ADC_ADRESS            EQU     00212h
+ADC_COUNT             EQU     040h
+
+;-------------------------------------------------------------------------------
+            ORG        0FC00h                        
+;-------------------------------------------------------------------------------
+
+
+RESET       MOV.W      #WDTPW+WDTHOLD,&WDTCTL         
+            MOV.W      #00280h,SP                     
+            MOV.B      &CALBC1_12MHZ,&BCSCTL1 
+	    MOV.B      &CALDCO_12MHZ,&DCOCTL            
+            MOV.B      #004h,R12
+            CLR.B      &DATA_R_1
+            MOV.W      #DATA_R_1,R13     
+            MOV.B      #04Ah,&DATA_T_2
+            MOV.B      #076h,&DATA_T_1
+            MOV.W      #DATA_T_2,R14
+            CLR.B       R15
+            
+//----------------------Натсройка Портов----------------------------------------               
+               
+	    CLR.B      &P1OUT
+            CLR.B      &P2SEL
+	    MOV.B      #003h,&P1DIR
+            MOV.B      #040h,&P2DIR              
+            CLR.B      &P2OUT
+            BIS.B      #BIT3,&P1SEL    
+            BIS.B      #BIT7,&P2IES
+            BIS.B      #BIT7,&P2IE
+            BIC.B      #BIT7,&P2IFG
+             
+//----------------------Настройка  USI------------------------------------------
+
+            BIS.B      #USISWRST,&USICTL0
+	    BIS.B      #USIPE7+USIPE6+USIPE5+USILSB+USIOE,&USICTL0 
+	    BIS.B      #008h,&USICNT
+            MOV.B      &DATA_T_1,&USISRL
+            BIC.B      #USIIE,&USICTL1
+            
+//----------------------Настройка АЦП-------------------------------------------
+
+            BIC.W      #ENC,&ADC10CTL0
+BUSY_TEST   BIT.W      #BUSY,&ADC10CTL1
+            JNZ         BUSY_TEST
+            BIS.W      #SREF1+SREF0+ADC10SHT0+ADC10ON,&ADC10CTL0
+            BIS.W      #INCH1+ADC10DIV2+ADC10DIV1+ADC10DIV0,&ADC10CTL1
+            BIS.B      #BIT2+BIT4,&ADC10AE0
+              
+            BIS.W      #ENC,&ADC10CTL0
+
+
+//---------------------Основной цикл--------------------------------------------            
+
+
+
+            EINT          
+
+            //CALL       #RES_SPI  //debug
+          
+           // CALL       #SET_BALANCE //debug
+MAINLOOP    CMP.B      #032h,&DATA_R_4
+           // CALL       #ADC_START //debug
+            JNZ        MAINLOOP
+            CMP.B      #03Dh,&DATA_R_1
+            JNZ         STEP1
+            CALL       #PREPARE_DATA
+STEP1       CMP.B      #08Eh,&DATA_R_1
+            JNZ         STEP2
+            CALL       #SET_BALANCE
+STEP2       CMP.B      #095h,&DATA_R_1
+            JNZ         MAINLOOP
+            CALL       #SET_AMPLIFIER          
+            JMP         MAINLOOP
+                    
+//------------------------------------------------------------------------------            
+//            Подпрограммы
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+PREPARE_DATA      CLR.B   &DATA_R_1 
+                  CLR.B   &DATA_R_4
+                  CALL    #ADC_START
+                  MOV.B   R10,&DATA_T_4
+                  RRA.W   R10
+                  RRA.W   R10
+                  RRA.W   R10
+                  RRA.W   R10
+                  RRA.W   R10
+                  RRA.W   R10
+                  RRA.W   R10
+                  RRA.W   R10
+                  MOV.B   R10,&DATA_T_3 //что-то остается?
+                  CLR.B   &DATA_R_3
+                  CLR.B   &DATA_R_1     
+                  MOV.B   #059h,&DATA_T_2                
+                  RET
+
+//----------------------Коэффициент усилении------------------------------------
+
+SET_AMPLIFIER     CLR.B   &DATA_R_1  
+                  CLR.B   &DATA_R_4
+                  MOV.B   &DATA_R_2,&AMPLIFER               
+                  MOV.W   #0D200h,&RES_DATA
+                  MOV.B   &AMPLIFER,&RES_DATA
+                  CALL    #RES_SPI              
+                  MOV.B   &AMPLIFER,&DATA_T_3                                    
+                  CLR.B   &DATA_R_3
+                  CLR.B   &DATA_R_1
+                  MOV.B   #076h,&DATA_T_4
+                  MOV.B   #059h,&DATA_T_2                
+                  RET
+
+//----------------------Баланс--------------------------------------------------
+/*
+SET_BALANCE       CLR.B   &DATA_R_1  
+                  CLR.B   &DATA_R_4
+                  MOV.B   #000FFh,&BALANCE
+                  MOV.W   #07FFFh,&COMPARE
+                  CLR.W   &ADC_TEMP
+PROSEED           MOV.W   #0D100h,&RES_DATA
+                  MOV.B   &BALANCE,&RES_DATA
+                  CALL    #RES_SPI
+                  CALL    #ADC_START
+                  MOV.W    R10,&ADC_TEMP
+                  SUB.W   #00400h,&ADC_TEMP// Сравнение с 1024
+                  JGE      LABEL1
+                  INV.W    &ADC_TEMP
+                  INC.W    &ADC_TEMP                           
+LABEL1            CMP.W   &COMPARE,&ADC_TEMP
+                  JGE      LABEL                      
+                  MOV.W   &ADC_TEMP,&COMPARE
+                  MOV.B   &BALANCE,&TEMP_BALANCE
+LABEL             DEC.B   &BALANCE
+                  JNZ      PROSEED               
+                  MOV.B   &TEMP_BALANCE,&BALANCE
+                  MOV.W   #0D100h,&RES_DATA
+                  MOV.B   &BALANCE,&RES_DATA
+                  CALL    #RES_SPI    
+                  CLR.B   &DATA_R_3
+                  CLR.B   &DATA_R_1
+                  MOV.B   &BALANCE,&DATA_T_3
+                  MOV.B    #076h,&DATA_T_4
+                  MOV.B   #059h,&DATA_T_2
+                  RET
+            
+ */           
+
+
+
+SET_BALANCE       CLR.B   &DATA_R_1  
+                  CLR.B   &DATA_R_4
+                  MOV.W   #00000h,&TEMP_BALANCE
+                  MOV.B   #000F0h,&BALANCE
+                  MOV.W   #00050h,&COMPARE
+                  CLR.W   &ADC_TEMP
+                  MOV.W   #0D100h,&RES_DATA
+                  MOV.B   #000FFh,&RES_DATA
+                  CALL    #RES_SPI
+                  CALL    #ADC_START
+                  MOV.W   R10,&ADC_TEMP
+                  SUB.W   #00400h,&ADC_TEMP // Сравнение с 1024
+                  JN     PROCEED 
+                  BIS.B   #01h,&TEMP_BALANCE //Если значение больше 1024, запоминаем это в TEMP_BALANCE
+                  DEC.W   &COMPARE
+                  JZ      FINAL
+PROCEED           MOV.W   #0D100h,&RES_DATA //грубая балансировка  
+                  MOV.B   &BALANCE,&RES_DATA
+                  SUB.B   #00010h,&BALANCE //точность - 16 шагов переключения резистора
+                  DEC.W   &COMPARE         //нужен ли счетчик для предохранения?
+                  CMP.W   #00018h, &COMPARE
+                  JZ      FINAL
+                  CALL    #RES_SPI
+                  CALL    #ADC_START
+                  MOV.W    R10,&ADC_TEMP 
+                  SUB.W   #00400h,&ADC_TEMP // Сравнение с 1024
+                  JN      LESS              //сравнение с предыдущим знаком  
+                  BIT.B   #01h,&TEMP_BALANCE                
+                  JZ      SMOOTH
+                  JNZ     PROCEED
+LESS              BIT.B   #01h,&TEMP_BALANCE  
+                  JNZ     SMOOTH
+                  JZ      PROCEED
+  
+ 
+SMOOTH            ADD.B   #00001h,&BALANCE //точная балансировка 
+                  MOV.W   #0D100h,&RES_DATA
+                  MOV.B   &BALANCE,&RES_DATA
+                  DEC.W   &COMPARE         //нужен ли счетчик для предохранения?
+                  JZ      FINAL
+                  CALL    #RES_SPI
+                  CALL    #ADC_START
+                  MOV.W    R10,&ADC_TEMP
+                  SUB.W   #00400h,&ADC_TEMP// Сравнение с 1024
+                  JN      LESS2      
+                  BIT.B   #01h,&TEMP_BALANCE                  
+                  JZ      SMOOTH
+                  JNZ     FINAL
+LESS2             BIT.B   #01h,&TEMP_BALANCE  
+                  JNZ     SMOOTH
+                  JZ      FINAL
+
+FINAL             INC.B   &BALANCE
+                  MOV.W   #0D100h,&RES_DATA
+                  MOV.B   &BALANCE,&RES_DATA
+                  CALL    #RES_SPI    
+                  CLR.B   &DATA_R_3
+                  CLR.B   &DATA_R_1
+                  MOV.B   &BALANCE,&DATA_T_3
+                  MOV.B    #076h,&DATA_T_4
+                  MOV.B   #059h,&DATA_T_2
+                  RET
+            
+           
+
+
+
+//-----------------------АЦП----------------------------------------------------            
+            
+ADC_START         
+                  CLR.W   &ADC_TEMP
+                  MOV.B   #ADC_COUNT,R6
+ADC_REPEAT        BIS.W   #ADC10SC,&ADC10CTL0     
+ADC10             BIT.W   #ADC10IFG,&ADC10CTL0
+                  JZ      ADC10
+                  BIC.W  #ADC10IFG,&ADC10CTL0
+                  ADD.W    &ADC10MEM,&ADC_TEMP
+                              
+                  MOV.W   #003FFh,R8
+                  
+                  CALL    #DELAY
+                  DEC.B    R6
+                  JNZ      ADC_REPEAT
+                  MOV.W   &ADC_TEMP,R10
+                  RRA.W   R10
+                  BIC.W   #BITF,R10
+                  RRA.W   R10
+                  RRA.W   R10 
+                  RRA.W   R10
+                  RRA.W   R10
+                  RET
+            
+               
+       
+//--------------------MCP42010--------------------------------------------------
+
+RES_SPI           BIS.B   #BIT1,&P1OUT
+                /*BIC.B   #BIT1,&P1OUT //debug
+                BIS.B   #BIT1,&P1OUT //debug
+                
+                BIS.B   #BIT0,&P1OUT //debug
+                BIC.B   #BIT0,&P1OUT //debug
+                BIS.B   #BIT6,&P2OUT //debug
+                BIC.B   #BIT6,&P2OUT //debug
+                //*/
+                  MOV.B   #010h,R5
+                  BIS.B   #BIT6,&P2OUT
+RES_SPI_1         RLA.W   &RES_DATA
+                  BIC.B   #BIT0,&P1OUT
+                  JC       BIT_1    
+                  BIS.B   #BIT0,&P1OUT       
+                  MOV.W   #0005Fh,R8
+                  CALL    #DELAY
+BIT_1             BIC.B   #BIT1,&P1OUT//BIC
+                  MOV.W   #0005Fh,R8
+                  CALL    #DELAY
+                  BIS.B   #BIT1,&P1OUT//BIS
+                  DEC.B    R5
+                  JNZ      RES_SPI_1
+                  MOV.B   #010h,R5
+                  BIC.B   #BIT6,&P2OUT
+                  BIC.B   #BIT1+BIT0,&P1OUT 
+                  MOV.W   #0FFFFh,R8
+                  CALL    #DELAY
+                  RET
+                  
+//----------------------------Задержка------------------------------------------
+
+DELAY            DEC.W   R8
+                 JNZ     DELAY
+                 RET
+                  
+//------------------------------------------------------------------------------            
+//               Прерывания
+//------------------------------------------------------------------------------
+        
+//------------------------USI--------------------------------------------------
+
+SPI_ON            BIS.B     #008h,&USICNT
+                  MOV.B     &USISRL,0(R13)
+                  DEC.B      R12
+                  INC.W      R13
+                  MOV.B     @R14+,&USISRL
+                  TST.B      R12
+                  JNZ         SPI_GO    
+                  CMP.B      #0AAh,&DATA_R_4
+                  JNZ        NEW_COMM
+                  MOV.B     #04Ah,&DATA_T_2
+                  CLR.B       &DATA_R_4
+NEW_COMM          MOV.B       #076h,&USISRL 
+                  MOV.B       #004h,R12
+                  MOV.W       #DATA_R_1,R13
+                  MOV.W       #DATA_T_2,R14               
+SPI_GO            RETI
+
+//--------------------------Порт-------------------------------------------------
+
+
+SPI_EN            MOV.B      #076h,&USISRL 
+                  CLR.B      &P2IFG
+                  BIS.B      #008h,&USICNT
+                  MOV.B      #004h,R12
+                  MOV.W      #DATA_R_1,R13
+                  MOV.W      #DATA_T_2,R14
+                  
+                  BIT.B      #BIT7,&P2IN
+                  JNZ         SPI_DIS 
+                  
+                  
+                  BIC.B      #BIT7,&P2IES
+                  BIS.B      #USIIE,&USICTL1
+                  BIC.B      #USISWRST,&USICTL0  
+                  CLR.B      &P2IFG
+                  RETI
+SPI_DIS           BIC.B      #USIIE,&USICTL1
+                  BIS.B      #USISWRST,&USICTL0
+                  BIS.B      #BIT7,&P2IES
+                  CLR.B      &P2IFG
+                  RETI
+
+
+
+
+
+             
+//------------------------------------------------------------------------------          
+//            Вектора прерываний
+//------------------------------------------------------------------------------
+                  
+                  ORG   0FFE6h
+                  DW    SPI_EN
+                  
+                  ORG   0FFE8h
+                  DW    SPI_ON
+                  
+                             
+                  ORG   0FFFEh                  
+                  DW    RESET                   
+
+                  END

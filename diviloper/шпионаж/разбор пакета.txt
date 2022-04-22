@@ -1,0 +1,21 @@
+$09145305.6900808N04954.0900715E+089-5
+ -> (dec) 5 -> (hex)05
+$ 0914 5305 . 69008 08 N 04954 . 090071 5 E + 089 -5
+
+
+WRITE_USB ('$')                            ->$
+for (i=0;i<=3;i++) WRITE_USB(gpstime[i]);  ->0914
+for (i=0;i<=3;i++) WRITE_USB(gpswide[i]);  ->5305
+WRITE_USB('.');                            ->.
+for (i=4;i<=8;i++) WRITE_USB(gpswide[i]);  ->69008  
+WRITE_USB (gpswide[9]);                    ->08
+WRITE_USB (gpsns);                         ->N
+for (i=0;i<=4;i++) WRITE_USB(gpslong[i]);  ->04954
+WRITE_USB('.');                            ->.
+for (i=5;i<=10;i++) WRITE_USB(gpslong[i]); ->090071
+???????????????????????????????????????    ->5
+WRITE_USB (gpswe);                         ->E
+for (i=0;i<=3;i++) WRITE_USB(gpsheight[i]);->+089
+WRITE_USB(antenna[0]);                     ->(ENQ) (13)
+WRITE_USB(antenna[1]);                     ->- 
+WRITE_USB(0x35);                           ->5

@@ -1,0 +1,25 @@
+--cpu Cortex-M3
+"hal_adc_magnetic\startup_stm32f103xb.o"
+"hal_adc_magnetic\main.o"
+"hal_adc_magnetic\stm32f1xx_it.o"
+"hal_adc_magnetic\stm32f1xx_hal_msp.o"
+"hal_adc_magnetic\stm32f1xx_hal_gpio_ex.o"
+"hal_adc_magnetic\stm32f1xx_hal_adc.o"
+"hal_adc_magnetic\stm32f1xx_hal_adc_ex.o"
+"hal_adc_magnetic\stm32f1xx_hal.o"
+"hal_adc_magnetic\stm32f1xx_hal_rcc.o"
+"hal_adc_magnetic\stm32f1xx_hal_rcc_ex.o"
+"hal_adc_magnetic\stm32f1xx_hal_gpio.o"
+"hal_adc_magnetic\stm32f1xx_hal_dma.o"
+"hal_adc_magnetic\stm32f1xx_hal_cortex.o"
+"hal_adc_magnetic\stm32f1xx_hal_pwr.o"
+"hal_adc_magnetic\stm32f1xx_hal_flash.o"
+"hal_adc_magnetic\stm32f1xx_hal_flash_ex.o"
+"hal_adc_magnetic\stm32f1xx_hal_exti.o"
+"hal_adc_magnetic\stm32f1xx_hal_tim.o"
+"hal_adc_magnetic\stm32f1xx_hal_tim_ex.o"
+"hal_adc_magnetic\system_stm32f1xx.o"
+--strict --scatter "HAL_ADC_Magnetic\HAL_ADC_Magnetic.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "HAL_ADC_Magnetic.map" -o HAL_ADC_Magnetic\HAL_ADC_Magnetic.axf
